@@ -1,28 +1,28 @@
 #include "particle.h"
+#include "systemparameters.h"
 
 #include <iostream>
 #include <cstdlib>
-
-Particle::Particle()
-	: dataSize(64)
-	, currentState(0)
-	, bestLocalState(0)
-{}
-
-Particle::Particle(size_p size)
-	: dataSize((size > 64) ? 64 : size)
-{
-	setRandomState();
-}
+#include <cmath>
 
 Particle::Particle(size_p size, data_p data)
 	: dataSize((size > 64) ? 64 : size)
 	, currentState(data)
 	, bestLocalState(currentState)
-{}
+{
+	velocities = new float[dataSize];
+	if (velocities)
+	{
+		for (size_t i = 0; i < dataSize; ++i)
+			velocities[i] = 0.f;
+	}
+}
 
 Particle::~Particle()
-{}
+{
+	if (velocities)
+		delete[] velocities;
+}
 
 Particle & Particle::operator=(Particle && particle)
 {
@@ -39,6 +39,29 @@ Particle & Particle::operator=(Particle && particle)
 		particle.bestGlobalState = nullptr;
 	}
 	return *this;
+}
+
+void Particle::updateParticle()
+{
+	for (size_t i = 0; i < dataSize; ++i)
+	{
+		// update velocity
+		// need reimplementation!!!
+		velocities[i] = velocities[i] +
+			SystemParameters.fi1 * (static_cast<float>(rand()) / RAND_MAX) * (BIT_VALUE(bestLocalState, i) - BIT_VALUE(currentState, i)) +
+			SystemParameters.fi2 * (static_cast<float>(rand()) / RAND_MAX) * (BIT_VALUE(*bestGlobalState, i) - BIT_VALUE(currentState, i));
+		// update particle component - should be HERE or below this scope??
+		float sigmoidV = 1 / (1 + exp(-velocities[i]));
+		if ((static_cast<float>(rand()) / RAND_MAX) < 1)
+			currentState |= (1 << i);
+		else
+			currentState &= ~(1 << i);
+	}
+
+	//			if (f(xi) < f(pi)
+	//				update particle's best known position pi <-- xi
+	//				if (f(pi) < f(g))
+	//					update best known global position g <-- pi
 }
 
 size_p Particle::getDataSize()
