@@ -1,7 +1,2 @@
-﻿  BinaryParticleSwarmOptimization.cpp
-c:\users\michał\desktop\ix semestr\io\binaryparticleswarmoptimization\binaryparticleswarmoptimization\binaryparticleswarmoptimization.cpp(8): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  particle.cpp
-c:\users\michał\desktop\ix semestr\io\binaryparticleswarmoptimization\binaryparticleswarmoptimization\systemparameters.h(6): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\michał\desktop\ix semestr\io\binaryparticleswarmoptimization\binaryparticleswarmoptimization\particle.cpp(56): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-  Generating Code...
+﻿  particle.cpp
   BinaryParticleSwarmOptimization.vcxproj -> C:\Users\Michał\Desktop\IX semestr\IO\BinaryParticleSwarmOptimization\Debug\BinaryParticleSwarmOptimization.exe

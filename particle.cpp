@@ -1,61 +1,89 @@
 #include "particle.h"
-#include "systemparameters.h"
+#include "algorithmparameters.h"
 
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
 
-Particle::Particle(size_p size, data_p data)
-	: dataSize((size > 64) ? 64 : size)
-	, currentState(data)
-	, bestLocalState(currentState)
+Particle::Particle(size_t size)
+	: size(size > 0 ? size : 8)
 {
-	velocities = new float[dataSize];
-	if (velocities)
-	{
-		for (size_t i = 0; i < dataSize; ++i)
-			velocities[i] = 0.f;
-	}
+	currentState = new char[size];
+	bestLocalState = new char[size];
+	velocities = new float[size];
+
+	setRandomState();
 }
 
 Particle::~Particle()
 {
+	if (currentState)
+		delete[] currentState;
+	if (bestLocalState)
+		delete[] bestLocalState;
 	if (velocities)
 		delete[] velocities;
 }
 
+void Particle::printCurrentState()
+{
+	for (size_t i = 0; i < size; ++i)
+		std::cout << static_cast<int>(currentState[i]);
+	std::cout << std::endl;
+}
+
+void Particle::setRandomState()
+{
+	for (size_t i = 0; i < size; ++i)
+		currentState[i] = rand() % 2;
+}
+
+void Particle::updateBestLocalState()
+{
+	for (size_t i = 0; i < size; ++i)
+		bestLocalState[i] = currentState[i];
+}
+
+
 Particle & Particle::operator=(Particle && particle)
 {
-	if (this != &particle)
+	if (this != &particle && size == particle.size)
 	{
-		dataSize = particle.dataSize;
+		if (currentState)
+			delete[] currentState;
+		if (bestLocalState)
+			delete[] bestLocalState;
+		if (velocities)
+			delete[] velocities;
+
 		currentState = particle.currentState;
 		bestLocalState = particle.bestLocalState;
+		velocities = particle.velocities;
 		bestGlobalState = particle.bestGlobalState;
-		// clear up
-		particle.dataSize = 0;
-		particle.currentState = 0;
-		particle.bestLocalState = 0;
-		particle.bestGlobalState = nullptr;
+
+		particle.currentState = nullptr;
+		particle.bestLocalState = nullptr;
+		particle.velocities = nullptr;
+
 	}
 	return *this;
 }
 
 void Particle::updateParticle()
 {
-	for (size_t i = 0; i < dataSize; ++i)
+	float alpha = AlgorithmParameters::getAlgorithmParameters().getAlpha();
+	float beta = AlgorithmParameters::getAlgorithmParameters().getBeta();
+	float velocitySigmoid = 0.f;
+
+	for (size_t i = 0; i < size; ++i)
 	{
 		// update velocity
 		// need reimplementation!!!
-		velocities[i] = velocities[i] +
-			SystemParameters.fi1 * (static_cast<float>(rand()) / RAND_MAX) * (BIT_VALUE(bestLocalState, i) - BIT_VALUE(currentState, i)) +
-			SystemParameters.fi2 * (static_cast<float>(rand()) / RAND_MAX) * (BIT_VALUE(*bestGlobalState, i) - BIT_VALUE(currentState, i));
+		velocities[i] += alpha * (bestLocalState[i] - currentState[i]) + beta * (bestGlobalState[i] - currentState[i]);
+
 		// update particle component - should be HERE or below this scope??
-		float sigmoidV = 1 / (1 + exp(-velocities[i]));
-		if ((static_cast<float>(rand()) / RAND_MAX) < 1)
-			currentState |= (1 << i);
-		else
-			currentState &= ~(1 << i);
+		velocitySigmoid = 1 / (1 + exp(-velocities[i]));
+		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;
 	}
 
 	//			if (f(xi) < f(pi)
@@ -64,36 +92,3 @@ void Particle::updateParticle()
 	//					update best known global position g <-- pi
 }
 
-size_p Particle::getDataSize()
-{
-	return dataSize;
-}
-
-data_p Particle::getCurrentState()
-{
-	return currentState;
-}
-
-data_p Particle::getBestLocalState()
-{
-	return bestLocalState;
-}
-
-void Particle::setRandomState()
-{
-	for (int i = 0; i < dataSize; ++i)
-		currentState |= ((rand() % 2) << i);
-}
-
-void Particle::setBestGlobalState(data_p * bestGlobal)
-{
-	if (bestGlobal)
-		bestGlobalState = bestGlobal;
-}
-
-void Particle::printCurrentState()
-{
-	for (int i = dataSize - 1; i > -1; --i)
-		std::cout << ((currentState >> i) & 1);
-	std::cout << std::endl;
-}

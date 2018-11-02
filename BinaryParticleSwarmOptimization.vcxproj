@@ -152,7 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="particle.h" />
-    <ClInclude Include="systemparameters.h" />
+    <ClInclude Include="algorithmparameters.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BinaryParticleSwarmOptimization.cpp">

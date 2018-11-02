@@ -18,7 +18,7 @@
     <ClInclude Include="particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="systemparameters.h">
+    <ClInclude Include="algorithmparameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
