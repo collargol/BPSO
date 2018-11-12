@@ -8,13 +8,14 @@ public:
 	Particle(size_t size);
 	~Particle();
 
-	Particle(const Particle & particle) = delete;
+	Particle(const Particle & particle);
 	Particle(Particle && particle) = delete;
-	Particle & operator=(const Particle & particle) = delete;
+	Particle & operator=(const Particle & particle);
 	Particle & operator=(Particle && particle);
 
-	void updateParticle();
-
+	void updateParticleState();
+	void updateBestLocalState();
+	void setBestGlobalState(Particle * bestKnownParticle);
 	//size_p getDataSize();
 	//data_p getCurrentState();
 	//data_p getBestLocalState();
@@ -22,26 +23,26 @@ public:
 	//void setRandomState();
 	//void setBestGlobalState(data_p * bestGlobal);
 
-	// debug
 	void printCurrentState();
+	pbit getBestLocalBit(size_t i);
+	pbit operator[](size_t i);
 
 private:
 	size_t size;
+
 	pbit * currentState;
 	pbit * bestLocalState;
-	pbit * bestGlobalState;
-
+	Particle * bestGlobalState;
 	float * velocities;
 
 	void setRandomState();
-	void updateBestLocalState();
+
 	//size_p dataSize;
 	//data_p currentState;
 	//data_p bestLocalState;
 	//data_p * bestGlobalState;
 
 	//float * velocities = nullptr;
-
 };
 
 

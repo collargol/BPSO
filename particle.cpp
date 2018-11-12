@@ -1,5 +1,4 @@
 #include "particle.h"
-#include "algorithmparameters.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -25,6 +24,24 @@ Particle::~Particle()
 		delete[] velocities;
 }
 
+Particle::Particle(const Particle & particle)
+{
+	size = particle.size;
+
+	currentState = new pbit[size];
+	bestLocalState = new pbit[size];
+	velocities = new float[size];
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		currentState[i] = particle.currentState[i];
+		bestLocalState[i] = particle.bestLocalState[i];
+		velocities[i] = particle.velocities[i];
+	}
+
+	bestGlobalState = particle.bestGlobalState;
+}
+
 void Particle::printCurrentState()
 {
 	for (size_t i = 0; i < size; ++i)
@@ -32,10 +49,19 @@ void Particle::printCurrentState()
 	std::cout << std::endl;
 }
 
+pbit Particle::getBestLocalBit(size_t i)
+{
+	return (i < size) ? bestLocalState[i] : -1;
+}
+
 void Particle::setRandomState()
 {
 	for (size_t i = 0; i < size; ++i)
+	{
 		currentState[i] = static_cast<pbit>(rand() % 2);
+		bestLocalState[i] = currentState[i];
+		velocities[i] = 0.0f;
+	}
 }
 
 void Particle::updateBestLocalState()
@@ -44,6 +70,27 @@ void Particle::updateBestLocalState()
 		bestLocalState[i] = currentState[i];
 }
 
+pbit Particle::operator[](size_t i)
+{
+	return (i < size) ? currentState[i] : -1;	// -1 will gave big value
+}
+
+
+Particle & Particle::operator=(const Particle & particle)
+{
+	if (this != &particle && size == particle.size)
+	{
+		for (size_t i = 0; i < size; ++i)
+		{
+			currentState[i] = particle.currentState[i];
+			bestLocalState[i] = particle.bestLocalState[i];
+			velocities[i] = particle.velocities[i];
+		}
+
+		bestGlobalState = particle.bestGlobalState;
+	}
+	return *this;
+}
 
 Particle & Particle::operator=(Particle && particle)
 {
@@ -69,26 +116,31 @@ Particle & Particle::operator=(Particle && particle)
 	return *this;
 }
 
-void Particle::updateParticle()
+void Particle::updateParticleState()
 {
-	float alpha = AlgorithmParameters::getAlgorithmParameters().getAlpha();
-	float beta = AlgorithmParameters::getAlgorithmParameters().getBeta();
 	float velocitySigmoid = 0.f;
-
+	float alpha = 0.5f;
+	float beta = 0.5f;
 	for (size_t i = 0; i < size; ++i)
 	{
 		// update velocity
 		// need reimplementation!!!
-		velocities[i] += alpha * (bestLocalState[i] - currentState[i]) + beta * (bestGlobalState[i] - currentState[i]);
-
+		velocities[i] += alpha * (bestLocalState[i] - currentState[i]) + beta * ((*bestGlobalState)[i] - currentState[i]);
 		// update particle component - should be HERE or below this scope??
 		velocitySigmoid = 1 / (1 + exp(-velocities[i]));
 		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;
 	}
 
+
 	//			if (f(xi) < f(pi)
 	//				update particle's best known position pi <-- xi
 	//				if (f(pi) < f(g))
 	//					update best known global position g <-- pi
+}
+
+void Particle::setBestGlobalState(Particle * bestKnownParticle)
+{
+	if (bestKnownParticle)
+		bestGlobalState = bestKnownParticle;
 }
 

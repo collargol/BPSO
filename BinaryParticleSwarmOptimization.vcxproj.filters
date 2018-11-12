@@ -18,9 +18,6 @@
     <ClInclude Include="particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithmparameters.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="algorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>

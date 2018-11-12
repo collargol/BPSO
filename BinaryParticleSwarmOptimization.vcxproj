@@ -156,7 +156,6 @@
     <ClInclude Include="csvfilereader.h" />
     <ClInclude Include="dataset.h" />
     <ClInclude Include="particle.h" />
-    <ClInclude Include="algorithmparameters.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="algorithm.cpp" />
