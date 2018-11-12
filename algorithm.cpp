@@ -1,13 +1,15 @@
 #include "algorithm.h"
 #include <iostream>
 
-Algorithm::Algorithm(size_t pNumber, size_t pSize, size_t iters, DataSet * ds, float vMax)
+Algorithm::Algorithm(size_t pNumber, size_t pSize, size_t iters, DataSet * ds, float vMax, float alpha, float beta)
 	: particlesNumber(pNumber)
 	, particlesSize(pSize)
 	, iterations(iters)
 	, dataset(ds)
 	, vMax(vMax)
 	, bestKnownParticle(new Particle(particlesSize))
+	, alpha(alpha)
+	, beta(beta)
 {
 	particles = new Particle*[particlesNumber];
 	for (size_t i = 0; i < particlesNumber; ++i)
@@ -50,7 +52,7 @@ void Algorithm::performOptimization()
 		std::cout << "iteration: " << it << std::endl;
 		for (size_t i = 0; i < particlesNumber; ++i)
 		{
-			particles[i]->updateParticleState();
+			particles[i]->updateParticleState(alpha, beta);
 			if (objectiveFunction(particles[i], true) > objectiveFunction(particles[i]))
 				particles[i]->updateBestLocalState();
 			if (objectiveFunction(bestKnownParticle) > objectiveFunction(particles[i]))

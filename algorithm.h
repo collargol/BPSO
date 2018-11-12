@@ -6,7 +6,7 @@
 class Algorithm
 {
 public:
-	Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, DataSet * ds, float vMax);
+	Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, DataSet * ds, float vMax, float alpha, float beta);
 	~Algorithm();
 
 	void bindDataSet(DataSet * ds);

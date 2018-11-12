@@ -13,7 +13,7 @@ public:
 	Particle & operator=(const Particle & particle);
 	Particle & operator=(Particle && particle);
 
-	void updateParticleState();
+	void updateParticleState(float alpha, float beta);
 	void updateBestLocalState();
 	void setBestGlobalState(Particle * bestKnownParticle);
 	//size_p getDataSize();

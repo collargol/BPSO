@@ -116,21 +116,22 @@ Particle & Particle::operator=(Particle && particle)
 	return *this;
 }
 
-void Particle::updateParticleState()
+void Particle::updateParticleState(float alpha, float beta)
 {
-	float velocitySigmoid = 0.f;
-	float alpha = 0.5f;
-	float beta = 0.5f;
+	float velocitySigmoid = 0.0f;
+	float c1 = 0.0f;
+	float c2 = 0.0f;
 	for (size_t i = 0; i < size; ++i)
 	{
 		// update velocity
 		// need reimplementation!!!
-		velocities[i] += alpha * (bestLocalState[i] - currentState[i]) + beta * ((*bestGlobalState)[i] - currentState[i]);
+		c1 = (static_cast<float>(rand()) / RAND_MAX) * alpha;
+		c2 = (static_cast<float>(rand()) / RAND_MAX) * beta;
+		velocities[i] += c1 * (bestLocalState[i] - currentState[i]) + c2 * ((*bestGlobalState)[i] - currentState[i]);
 		// update particle component - should be HERE or below this scope??
 		velocitySigmoid = 1 / (1 + exp(-velocities[i]));
 		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;
 	}
-
 
 	//			if (f(xi) < f(pi)
 	//				update particle's best known position pi <-- xi
