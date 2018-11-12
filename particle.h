@@ -1,5 +1,7 @@
 #pragma once
 
+typedef unsigned char pbit;
+
 class Particle
 {
 public:
@@ -25,9 +27,9 @@ public:
 
 private:
 	size_t size;
-	char * currentState;
-	char * bestLocalState;
-	char * bestGlobalState;
+	pbit * currentState;
+	pbit * bestLocalState;
+	pbit * bestGlobalState;
 
 	float * velocities;
 

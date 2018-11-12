@@ -151,15 +151,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="algorithm.h" />
+    <ClInclude Include="csv.h" />
+    <ClInclude Include="csvfilereader.h" />
+    <ClInclude Include="dataset.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="algorithmparameters.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="algorithm.cpp" />
     <ClCompile Include="BinaryParticleSwarmOptimization.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="csvfilereader.cpp" />
+    <ClCompile Include="dataset.cpp" />
     <ClCompile Include="particle.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

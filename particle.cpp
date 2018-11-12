@@ -8,8 +8,8 @@
 Particle::Particle(size_t size)
 	: size(size > 0 ? size : 8)
 {
-	currentState = new char[size];
-	bestLocalState = new char[size];
+	currentState = new pbit[size];
+	bestLocalState = new pbit[size];
 	velocities = new float[size];
 
 	setRandomState();
@@ -35,7 +35,7 @@ void Particle::printCurrentState()
 void Particle::setRandomState()
 {
 	for (size_t i = 0; i < size; ++i)
-		currentState[i] = rand() % 2;
+		currentState[i] = static_cast<pbit>(rand() % 2);
 }
 
 void Particle::updateBestLocalState()
