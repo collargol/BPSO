@@ -116,7 +116,7 @@ Particle & Particle::operator=(Particle && particle)
 	return *this;
 }
 
-void Particle::updateParticleState(float alpha, float beta)
+void Particle::updateParticleState(float alpha, float beta, float maxVelocity)
 {
 	float velocitySigmoid = 0.0f;
 	float c1 = 0.0f;
@@ -128,6 +128,7 @@ void Particle::updateParticleState(float alpha, float beta)
 		c1 = (static_cast<float>(rand()) / RAND_MAX) * alpha;
 		c2 = (static_cast<float>(rand()) / RAND_MAX) * beta;
 		velocities[i] += c1 * (bestLocalState[i] - currentState[i]) + c2 * ((*bestGlobalState)[i] - currentState[i]);
+		velocities[i] = abs(velocities[i]) > maxVelocity ? (maxVelocity * velocities[i] / abs(velocities[i])) : velocities[i];
 		// update particle component - should be HERE or below this scope??
 		velocitySigmoid = 1 / (1 + exp(-velocities[i]));
 		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;

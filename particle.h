@@ -13,15 +13,9 @@ public:
 	Particle & operator=(const Particle & particle);
 	Particle & operator=(Particle && particle);
 
-	void updateParticleState(float alpha, float beta);
+	void updateParticleState(float alpha, float beta, float maxVelocity);
 	void updateBestLocalState();
 	void setBestGlobalState(Particle * bestKnownParticle);
-	//size_p getDataSize();
-	//data_p getCurrentState();
-	//data_p getBestLocalState();
-		
-	//void setRandomState();
-	//void setBestGlobalState(data_p * bestGlobal);
 
 	void printCurrentState();
 	pbit getBestLocalBit(size_t i);
@@ -36,13 +30,6 @@ private:
 	float * velocities;
 
 	void setRandomState();
-
-	//size_p dataSize;
-	//data_p currentState;
-	//data_p bestLocalState;
-	//data_p * bestGlobalState;
-
-	//float * velocities = nullptr;
 };
 
 

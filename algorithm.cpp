@@ -49,10 +49,10 @@ void Algorithm::performOptimization()
 {
 	for (size_t it = 0; it < iterations; ++it)
 	{
-		std::cout << "iteration: " << it << std::endl;
+		std::cout << "iteration: " << (it + 1) << std::endl;
 		for (size_t i = 0; i < particlesNumber; ++i)
 		{
-			particles[i]->updateParticleState(alpha, beta);
+			particles[i]->updateParticleState(alpha, beta, vMax);
 			if (objectiveFunction(particles[i], true) > objectiveFunction(particles[i]))
 				particles[i]->updateBestLocalState();
 			if (objectiveFunction(bestKnownParticle) > objectiveFunction(particles[i]))
@@ -64,6 +64,7 @@ void Algorithm::performOptimization()
 			}
 		}
 		bestKnownParticle->printCurrentState();
+		std::cout << "obj fcn: " << objectiveFunction(bestKnownParticle) << std::endl;
 	}
 
 	// xi is a vector of m features
@@ -97,7 +98,7 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 
 	// TODO: refactor this method and particle communication to remove this ugly bool parameter !!!
 
-	float functionValue = 0.f;
+	float functionValue = 1.0f;
 	size_t validFeatures = 0;
 	for (size_t i = 0; i < particlesSize; ++i)
 	{
@@ -108,23 +109,24 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 			{
 				if ((!useBestLocal && (*particle)[j] == 1) || (useBestLocal && particle->getBestLocalBit(j) == 1))
 				{
-					float covariance = 0.f;
+					float covariance = 0.0f;
 					// this is VERY slow because dataset is big
 					// for (size_t k = 0; k < dataset->datasetSize; ++k)
 					// another approach - getting 100 random values within range
-					for (size_t k = 0; k < 20; ++k)
+					for (size_t k = 0; k < 50; ++k)
 					{
 						size_t r = rand() % dataset->datasetSize;
 						covariance += ((*dataset)[i][r] - dataset->meanData[i]) * ((*dataset)[j][r] - dataset->meanData[j]);
 					}
 					covariance /= (dataset->datasetSize - 1);
-					functionValue += covariance;
+					std::cout << "covariance: " << covariance << std::endl;
+					functionValue *= covariance;
 				}
 			}
 		}
 	}
 	--validFeatures;
-	functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
+	//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
 
 	return functionValue;
 }
