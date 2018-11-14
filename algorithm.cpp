@@ -98,7 +98,7 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 
 	// TODO: refactor this method and particle communication to remove this ugly bool parameter !!!
 
-	float functionValue = 1.0f;
+	float functionValue = 0.0f;
 	size_t validFeatures = 0;
 	for (size_t i = 0; i < particlesSize; ++i)
 	{
@@ -120,7 +120,7 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 					}
 					covariance /= (dataset->datasetSize - 1);
 					std::cout << "covariance: " << covariance << std::endl;
-					functionValue *= covariance;
+					functionValue += covariance;
 				}
 			}
 		}

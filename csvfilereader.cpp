@@ -65,10 +65,10 @@ std::vector<std::string> CSVFileReader::readCSVRow(const std::string &row)
 				break;
 		}
 	}
-	fields.erase(fields.begin());
+	//fields.erase(fields.begin());
 
-	if (colsNumber < fields.size())
-		colsNumber = fields.size();
+	if (colsNumber < fields.size() - 1)
+		colsNumber = fields.size() - 1;	//to omit first column with classif data
 	return fields;
 }
 
@@ -102,11 +102,25 @@ DataSet * CSVFileReader::readCSV()
 	if (dataset)
 	{
 		for (size_t r = 0; r < table.size(); ++r)
+		{
+			dataset->classifData[r] = std::stoi(table[r][0]);
+			//std::cout << "classif data : " << dataset->classifData[r] << std::endl;
+			if (dataset->classifData[r] == 0)
+				++(dataset->datasetSizeClass0);
+			else //if (dataset->classifData[r] == 1)
+				++(dataset->datasetSizeClass1);
+
+			table[r].erase(table[r].begin());
+		}
+		//std::cout << "c0 : " << dataset->datasetSizeClass0 << std::endl;
+		//std::cout << "c1 : " << dataset->datasetSizeClass1 << std::endl;
+
+		for (size_t r = 0; r < table.size(); ++r)
 			for (size_t c = 0; c < table[r].size(); ++c)
 				(*dataset)[c][r] = std::stoi(table[r][c]);
+
 		dataset->computeMeanData();
 	}
-
 	return dataset;
 }
 
