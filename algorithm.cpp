@@ -7,15 +7,18 @@ Algorithm::Algorithm(size_t pNumber, size_t pSize, size_t iters, DataSet * ds, f
 	, iterations(iters)
 	, dataset(ds)
 	, vMax(vMax)
-	, bestKnownParticle(new Particle(particlesSize))
 	, alpha(alpha)
 	, beta(beta)
 {
+	bestKnownParticle = new Particle(particlesSize);
+	
 	particles = new Particle*[particlesNumber];
 	for (size_t i = 0; i < particlesNumber; ++i)
 	{
 		particles[i] = new Particle(particlesSize);
-		if (!bestKnownParticle || (objectiveFunction(bestKnownParticle) > objectiveFunction(particles[i])))
+		if (!bestKnownParticle)
+			std::cout << "BestKnownParticle is nullptr, something went wrong" << std::endl;
+		if (objectiveFunction(particles[i]) < objectiveFunction(bestKnownParticle))
 			(*bestKnownParticle) = (*particles[i]);
 	}
 
@@ -55,9 +58,9 @@ void Algorithm::performOptimization()
 			particles[i]->updateParticleState(alpha, beta, vMax);
 			if (objectiveFunction(particles[i], true) > objectiveFunction(particles[i]))
 				particles[i]->updateBestLocalState();
-			if (objectiveFunction(bestKnownParticle) > objectiveFunction(particles[i]))
+			if (objectiveFunction(particles[i]) < objectiveFunction(bestKnownParticle))
 			{
-				bestKnownParticle = particles[i];
+				(*bestKnownParticle) = (*particles[i]);		// !!!!!!!!
 				bestKnownParticle->setBestGlobalState(bestKnownParticle);
 				for (size_t p = 0; p < particlesNumber; ++p)
 					particles[p]->setBestGlobalState(bestKnownParticle);
@@ -100,34 +103,42 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 
 	float functionValue = 0.0f;
 	size_t validFeatures = 0;
+	float sumValue = 0.0f;
+	size_t howManyFeatures = 0;
 	for (size_t i = 0; i < particlesSize; ++i)
 	{
-		if ((!useBestLocal && (*particle)[i] == 1) || (useBestLocal && particle->getBestLocalBit(i) == 1))
+		if ((*particle)[i] == 1)
 		{
-			++validFeatures;
-			for (size_t j = i + 1; j < particlesSize; ++j)
-			{
-				if ((!useBestLocal && (*particle)[j] == 1) || (useBestLocal && particle->getBestLocalBit(j) == 1))
-				{
-					float covariance = 0.0f;
-					// this is VERY slow because dataset is big
-					// for (size_t k = 0; k < dataset->datasetSize; ++k)
-					// another approach - getting 100 random values within range
-					for (size_t k = 0; k < 50; ++k)
-					{
-						size_t r = rand() % dataset->datasetSize;
-						covariance += ((*dataset)[i][r] - dataset->meanData[i]) * ((*dataset)[j][r] - dataset->meanData[j]);
-					}
-					covariance /= (dataset->datasetSize - 1);
-					std::cout << "covariance: " << covariance << std::endl;
-					functionValue += covariance;
-				}
-			}
+			sumValue += dataset->meanDiffs[i];
+			howManyFeatures++;
 		}
+
+		//if ((!useBestLocal && (*particle)[i] == 1) || (useBestLocal && particle->getBestLocalBit(i) == 1))
+		//{
+		//	++validFeatures;
+		//	for (size_t j = i + 1; j < particlesSize; ++j)
+		//	{
+		//		if ((!useBestLocal && (*particle)[j] == 1) || (useBestLocal && particle->getBestLocalBit(j) == 1))
+		//		{
+		//			float covariance = 0.0f;
+		//			// this is VERY slow because dataset is big
+		//			// for (size_t k = 0; k < dataset->datasetSize; ++k)
+		//			// another approach - getting 100 random values within range
+		//			for (size_t k = 0; k < 50; ++k)
+		//			{
+		//				size_t r = rand() % dataset->datasetSize;
+		//				covariance += ((*dataset)[i][r] - dataset->meanData[i]) * ((*dataset)[j][r] - dataset->meanData[j]);
+		//			}
+		//			covariance /= (dataset->datasetSize - 1);
+		//			std::cout << "covariance: " << covariance << std::endl;
+		//			functionValue += covariance;
+		//		}
+		//	}
+		//}
 	}
 	--validFeatures;
 	//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
-
+	functionValue = sumValue / howManyFeatures;
 	return functionValue;
 }
 

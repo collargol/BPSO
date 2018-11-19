@@ -5,12 +5,12 @@
 DataSet::DataSet(size_t featuresNumber, size_t datasetSize)
 	: featuresNumber(featuresNumber)
 	, datasetSize(datasetSize)
-	, datasetSizeClass0(0)
-	, datasetSizeClass1(0)
 {
 	data = new fint*[featuresNumber];
 	for (size_t i = 0; i < featuresNumber; ++i)
 		data[i] = new fint[datasetSize];
+
+	datasetSizeClass = new size_t[2];
 
 	classifData = new fint[datasetSize];
 
@@ -20,6 +20,7 @@ DataSet::DataSet(size_t featuresNumber, size_t datasetSize)
 	meanClassData[0] = new float[featuresNumber];
 	meanClassData[1] = new float[featuresNumber];
 
+	meanDiffs = new float[featuresNumber];
 }
 
 DataSet::~DataSet()
@@ -30,6 +31,9 @@ DataSet::~DataSet()
 			delete[] data[i];
 		delete[] data;
 	}
+
+	if (datasetSizeClass)
+		delete[] datasetSizeClass;
 
 	if (classifData)
 		delete[] classifData;
@@ -43,6 +47,9 @@ DataSet::~DataSet()
 		delete[] meanClassData[1];
 		delete[] meanClassData;
 	}
+
+	if (meanDiffs)
+		delete[] meanDiffs;
 }
 
 void DataSet::computeMeanData()
@@ -62,10 +69,10 @@ void DataSet::computeMeanData()
 		}
 		sum = sumClass0 + sumClass1;
 		meanData[i] = static_cast<float>(sum / datasetSize);
-		meanClassData[0][i] = static_cast<float>(sumClass0 / datasetSizeClass0);
-		meanClassData[1][i] = static_cast<float>(sumClass1 / datasetSizeClass1);
-		float diff = abs(meanClassData[0][i] - meanClassData[1][i]) / meanData[i];
-		std::cout << meanClassData[0][i] << "   " << meanClassData[1][i] << " diff:  : " << diff << std::endl;
+		meanClassData[0][i] = static_cast<float>(sumClass0 / datasetSizeClass[0]);
+		meanClassData[1][i] = static_cast<float>(sumClass1 / datasetSizeClass[1]);
+		meanDiffs[i] = abs(meanClassData[0][i] - meanClassData[1][i]) / meanData[i];
+		std::cout << meanClassData[0][i] << "   " << meanClassData[1][i] << " diff:  : " << meanDiffs[i] << std::endl;
 	}
 }
 

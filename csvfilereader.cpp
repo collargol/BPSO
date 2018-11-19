@@ -101,14 +101,16 @@ DataSet * CSVFileReader::readCSV()
 
 	if (dataset)
 	{
+		dataset->datasetSizeClass[0] = 0;
+		dataset->datasetSizeClass[1] = 0;
 		for (size_t r = 0; r < table.size(); ++r)
 		{
 			dataset->classifData[r] = std::stoi(table[r][0]);
 			//std::cout << "classif data : " << dataset->classifData[r] << std::endl;
 			if (dataset->classifData[r] == 0)
-				++(dataset->datasetSizeClass0);
+				(dataset->datasetSizeClass[0])++;
 			else //if (dataset->classifData[r] == 1)
-				++(dataset->datasetSizeClass1);
+				(dataset->datasetSizeClass[1])++;
 
 			table[r].erase(table[r].begin());
 		}

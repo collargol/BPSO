@@ -47,6 +47,7 @@ void Particle::printCurrentState()
 	for (size_t i = 0; i < size; ++i)
 		std::cout << static_cast<int>(currentState[i]);
 	std::cout << std::endl;
+	std::cout << "size: " << size << std::endl;
 }
 
 pbit Particle::getBestLocalBit(size_t i)
@@ -75,11 +76,21 @@ pbit Particle::operator[](size_t i)
 	return (i < size) ? currentState[i] : -1;	// -1 will gave big value
 }
 
-
 Particle & Particle::operator=(const Particle & particle)
 {
 	if (this != &particle && size == particle.size)
 	{
+		/*if (currentState)
+			delete[] currentState;
+		if (bestLocalState)
+			delete[] bestLocalState;
+		if (velocities)
+			delete[] velocities;
+
+		currentState = new pbit[size];
+		bestLocalState = new pbit[size];
+		velocities = new float[size];*/
+
 		for (size_t i = 0; i < size; ++i)
 		{
 			currentState[i] = particle.currentState[i];
