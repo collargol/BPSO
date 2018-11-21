@@ -147,4 +147,9 @@ void Algorithm::printSolution()
 		bestKnownParticle->printCurrentState();
 }
 
+Particle * Algorithm::getSolution()
+{
+	return bestKnownParticle;
+}
+
 

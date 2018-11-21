@@ -1,4 +1,4 @@
-#include "csvfilereader.h"
+#include "csvfilereaderwriter.h"
 
 enum class CSVState {
 	UnquotedField,
@@ -6,18 +6,20 @@ enum class CSVState {
 	QuotedQuote
 };
 
-CSVFileReader::CSVFileReader(std::string path)
-	: filePath(path)
+CSVFileReaderWriter::CSVFileReaderWriter(std::string inputFilePath, std::string outputFilePath)
+	: inputFilePath(inputFilePath)
+	, outputFilePath(outputFilePath)
+	, csvFileHeader("null")
 	, rowsNumber(0)
 	, colsNumber(0)
 {
 }
 
-CSVFileReader::~CSVFileReader()
+CSVFileReaderWriter::~CSVFileReaderWriter()
 {
 }
 
-std::vector<std::string> CSVFileReader::readCSVRow(const std::string &row) 
+std::vector<std::string> CSVFileReaderWriter::readCSVRow(const std::string &row) 
 {
 	CSVState state = CSVState::UnquotedField;
 	std::vector<std::string> fields{ "" };
@@ -73,17 +75,19 @@ std::vector<std::string> CSVFileReader::readCSVRow(const std::string &row)
 }
 
 /// Read CSV file, Excel dialect. Accept "quoted fields ""with quotes"""
-DataSet * CSVFileReader::readCSV()
+DataSet * CSVFileReaderWriter::readCSV()
 {
 	std::vector<std::vector<std::string>> table;
 	std::filebuf fb;
-	if (fb.open(filePath, std::ios::in))
+	if (fb.open(inputFilePath, std::ios::in))
 	{
 		std::istream in(&fb);
 		std::string row;
 		while (!in.eof())
 		{
 			std::getline(in, row);
+			if (!csvFileHeader.compare("null"))
+				csvFileHeader = row.substr(row.find(" ") + 1);
 			if (in.bad() || in.fail())
 				break;
 			auto fields = readCSVRow(row);
@@ -124,5 +128,32 @@ DataSet * CSVFileReader::readCSV()
 		dataset->computeMeanData();
 	}
 	return dataset;
+}
+
+void CSVFileReaderWriter::writeSolutionCSV(Particle * solution)
+{
+	std::filebuf fb;
+	if (fb.open(outputFilePath, std::ios::out))
+	{
+		std::ostream out(&fb);
+		out << csvFileHeader;
+		out << std::endl;
+		std::string solutionRow;
+		for (size_t i = 0; i < solution->getSize(); ++i)
+		{	
+			//char bit = static_cast<char>((*solution)[i]);
+			//char * c = reinterpret_cast<char *>((*solution)[i]);
+			if (i > 0) 
+				solutionRow += ", ";
+				//solutionRow.append(", ");
+			//solutionRow.append(std::string(&bit));
+			//std::cout << "bit value: " << char(int((*solution)[i])) << std::endl;
+			//solutionRow += static_cast<char>((*solution)[i]);
+			solutionRow += ((*solution)[i] == 1) ? "1" : "0";
+		}
+		std::cout << "solution to write: " << solutionRow << std::endl;
+		out << solutionRow;
+		fb.close();
+	}
 }
 

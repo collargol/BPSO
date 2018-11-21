@@ -17,6 +17,7 @@ public:
 	void updateBestLocalState();
 	void setBestGlobalState(Particle * bestKnownParticle);
 
+	size_t getSize();
 	void printCurrentState();
 	pbit getBestLocalBit(size_t i);
 	pbit operator[](size_t i);

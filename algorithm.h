@@ -13,6 +13,7 @@ public:
 	void performOptimization();
 	float objectiveFunction(Particle * particle, bool useBestLocal = false);
 	void printSolution();
+	Particle * getSolution();
 
 private:
 	size_t particlesNumber;
