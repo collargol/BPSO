@@ -95,6 +95,9 @@ DataSet * CSVFileReaderWriter::readCSV()
 		}
 		fb.close();
 	}
+	else
+		return nullptr;
+
 	table.erase(table.begin());
 	rowsNumber = table.size();
 
