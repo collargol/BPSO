@@ -2,18 +2,24 @@
 
 #include "particle.h"
 #include "dataset.h"
+#include <memory>
 
 class Algorithm
 {
 public:
-	Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, DataSet * ds, float vMax, float alpha, float beta);
+	Algorithm(size_t particlesNumber, 
+			size_t particlesSize, 
+			size_t iterations, 
+			std::unique_ptr<DataSet> & ds, 
+			float vMax, 
+			float alpha, 
+			float beta);
 	~Algorithm();
 
-	void bindDataSet(DataSet * ds);
 	void performOptimization();
-	float objectiveFunction(Particle * particle, bool useBestLocal = false);
+	float objectiveFunction(std::vector<pbit> state);
 	void printSolution();
-	Particle * getSolution();
+	Particle getSolution();
 
 private:
 	size_t particlesNumber;
@@ -22,11 +28,12 @@ private:
 
 	float alpha;
 	float beta;
-
 	float vMax;
-
-	Particle ** particles;
-	Particle * bestKnownParticle;
-
+	
+	std::vector<std::unique_ptr<Particle>> particles;
+	Particle bestKnownParticle;
 	DataSet * dataset;
+
+	//Particle ** particles;
+	//DataSet * dataset;
 };

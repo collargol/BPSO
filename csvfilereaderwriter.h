@@ -22,6 +22,6 @@ public:
 
 	std::vector<std::string> readCSVRow(const std::string &row);
 	DataSet * readCSV();
-	void writeSolutionCSV(Particle * solution);
+	void writeSolutionCSV(Particle solution);
 };
 

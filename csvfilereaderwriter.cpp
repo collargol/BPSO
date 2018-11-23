@@ -133,7 +133,7 @@ DataSet * CSVFileReaderWriter::readCSV()
 	return dataset;
 }
 
-void CSVFileReaderWriter::writeSolutionCSV(Particle * solution)
+void CSVFileReaderWriter::writeSolutionCSV(Particle solution)
 {
 	std::filebuf fb;
 	if (fb.open(outputFilePath, std::ios::out))
@@ -142,7 +142,7 @@ void CSVFileReaderWriter::writeSolutionCSV(Particle * solution)
 		out << csvFileHeader;
 		out << std::endl;
 		std::string solutionRow;
-		for (size_t i = 0; i < solution->getSize(); ++i)
+		for (size_t i = 0; i < solution.getSize(); ++i)
 		{	
 			//char bit = static_cast<char>((*solution)[i]);
 			//char * c = reinterpret_cast<char *>((*solution)[i]);
@@ -152,7 +152,7 @@ void CSVFileReaderWriter::writeSolutionCSV(Particle * solution)
 			//solutionRow.append(std::string(&bit));
 			//std::cout << "bit value: " << char(int((*solution)[i])) << std::endl;
 			//solutionRow += static_cast<char>((*solution)[i]);
-			solutionRow += ((*solution)[i] == 1) ? "1" : "0";
+			solutionRow += (solution[i] == 1) ? "1" : "0";
 		}
 		std::cout << "solution to write: " << solutionRow << std::endl;
 		out << solutionRow;

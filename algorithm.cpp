@@ -1,34 +1,35 @@
 #include "algorithm.h"
 #include <iostream>
 
-Algorithm::Algorithm(size_t pNumber, size_t pSize, size_t iters, DataSet * ds, float vMax, float alpha, float beta)
-	: particlesNumber(pNumber)
-	, particlesSize(pSize)
-	, iterations(iters)
-	, dataset(ds)
+Algorithm::Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, std::unique_ptr<DataSet> & ds, float vMax, float alpha, float beta)
+	: particlesNumber(particlesNumber)
+	, particlesSize(particlesSize)
+	, particles()
+	//, particles(particlesNumber, std::make_unique<Particle>(Particle(particlesSize)))		// ERROR !!!
+	, bestKnownParticle(particlesSize)
+	, iterations(iterations)
+	, dataset(ds.get())
 	, vMax(vMax)
 	, alpha(alpha)
 	, beta(beta)
 {
-	bestKnownParticle = new Particle(particlesSize);
-	
-	particles = new Particle*[particlesNumber];
+	/*particles = std::vector<std::unique_ptr<Particle>>(particlesNumber, std::make_unique)
+	particles = new Particle*[particlesNumber];*/
 	for (size_t i = 0; i < particlesNumber; ++i)
 	{
-		particles[i] = new Particle(particlesSize);
-		if (!bestKnownParticle)
-			std::cout << "BestKnownParticle is nullptr, something went wrong" << std::endl;
-		if (objectiveFunction(particles[i]) < objectiveFunction(bestKnownParticle))
-			(*bestKnownParticle) = (*particles[i]);
+		//particles[i] = new Particle(particlesSize);
+		/*if (!bestKnownParticle)
+			std::cout << "BestKnownParticle is nullptr, something went wrong" << std::endl;*/
+		particles.push_back(std::make_unique<Particle>(Particle(particlesSize)));
+		if (i == 0 || (objectiveFunction(particles[i].get()->getCurrentState()) < objectiveFunction(bestKnownParticle.getCurrentState())))
+			bestKnownParticle = *(particles[i].get());
 	}
-
-	for (size_t i = 0; i < particlesNumber; ++i)
-		particles[i]->setBestGlobalState(bestKnownParticle);
 }
+
 
 Algorithm::~Algorithm()
 {
-	if (particles)
+	/*if (particles)
 	{
 		for (size_t i = 0; i < particlesNumber; ++i)
 			delete particles[i];
@@ -39,13 +40,7 @@ Algorithm::~Algorithm()
 		delete bestKnownParticle;
 
 	if (dataset)
-		delete dataset;
-}
-
-void Algorithm::bindDataSet(DataSet * ds)
-{
-	if (ds)
-		dataset = ds;
+		delete dataset;*/
 }
 
 void Algorithm::performOptimization()
@@ -55,19 +50,16 @@ void Algorithm::performOptimization()
 		std::cout << "iteration: " << (it + 1) << std::endl;
 		for (size_t i = 0; i < particlesNumber; ++i)
 		{
-			particles[i]->updateParticleState(alpha, beta, vMax);
-			if (objectiveFunction(particles[i], true) > objectiveFunction(particles[i]))
-				particles[i]->updateBestLocalState();
-			if (objectiveFunction(particles[i]) < objectiveFunction(bestKnownParticle))
+			particles[i]->updateParticleState(alpha, beta, vMax, bestKnownParticle.getCurrentState());
+			if (objectiveFunction(particles[i].get()->getBestLocalState()) > objectiveFunction(particles[i].get()->getCurrentState()))
 			{
-				(*bestKnownParticle) = (*particles[i]);		// !!!!!!!!
-				bestKnownParticle->setBestGlobalState(bestKnownParticle);
-				for (size_t p = 0; p < particlesNumber; ++p)
-					particles[p]->setBestGlobalState(bestKnownParticle);
+				particles[i].get()->makeCurrentStateBest();
+				if (objectiveFunction(bestKnownParticle.getCurrentState()) > objectiveFunction(particles[i].get()->getCurrentState()))
+					bestKnownParticle = *(particles[i].get());		// !!!!!!!!
 			}
 		}
-		bestKnownParticle->printCurrentState();
-		std::cout << "obj fcn: " << objectiveFunction(bestKnownParticle) << std::endl;
+		bestKnownParticle.printCurrentState();
+		std::cout << "obj fcn: " << objectiveFunction(bestKnownParticle.getCurrentState()) << std::endl;
 	}
 
 	// xi is a vector of m features
@@ -92,14 +84,17 @@ void Algorithm::performOptimization()
 	//					update best known global position g <-- pi
 }
 
-float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
+float Algorithm::objectiveFunction(std::vector<pbit> state)
 {
+	// 1st idea
 	// objective function value is computed as sum of all
 	// covariances (each feature with every other) from set 
 	// of "valid" features. Then the sum is divided by the 
 	// number of covariances.
 
-	// TODO: refactor this method and particle communication to remove this ugly bool parameter !!!
+	// 2nd idea
+	// check which parameters differ genders the most
+
 
 	float functionValue = 0.0f;
 	size_t validFeatures = 0;
@@ -107,7 +102,7 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 	size_t howManyFeatures = 0;
 	for (size_t i = 0; i < particlesSize; ++i)
 	{
-		if ((*particle)[i] == 1)
+		if (state[i] == 1)
 		{
 			sumValue += dataset->meanDiffs[i];
 			howManyFeatures++;
@@ -136,7 +131,7 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 		//	}
 		//}
 	}
-	--validFeatures;
+	//--validFeatures;
 	//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
 	functionValue = sumValue / howManyFeatures;
 	return functionValue;
@@ -144,10 +139,11 @@ float Algorithm::objectiveFunction(Particle * particle, bool useBestLocal)
 
 void Algorithm::printSolution()
 {
-		bestKnownParticle->printCurrentState();
+	bestKnownParticle.printCurrentState();
+	//bestKnownParticle->printCurrentState();
 }
 
-Particle * Algorithm::getSolution()
+Particle Algorithm::getSolution()
 {
 	return bestKnownParticle;
 }
