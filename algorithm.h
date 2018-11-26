@@ -20,6 +20,7 @@ public:
 	float objectiveFunction(std::vector<pbit> state);
 	void printSolution();
 	Particle getSolution();
+	void refreshParticles();
 
 private:
 	size_t particlesNumber;
@@ -31,6 +32,7 @@ private:
 	float vMax;
 	
 	std::vector<std::unique_ptr<Particle>> particles;
+	std::vector<Particle> bestParticlesHistory;
 	Particle bestKnownParticle;
 	DataSet * dataset;
 

@@ -153,3 +153,16 @@ void Particle::updateParticleState(float alpha, float beta, float maxVelocity, s
 		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;
 	}
 }
+
+bool operator==(const Particle & lp, const Particle & rp)
+{
+	return lp.size == rp.size
+		&& lp.currentState == rp.currentState
+		&& lp.bestLocalState == rp.bestLocalState
+		&& lp.velocities == rp.velocities;
+}
+
+bool operator!=(const Particle & lp, const Particle & rp)
+{
+	return !(lp == rp);
+}

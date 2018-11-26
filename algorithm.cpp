@@ -15,15 +15,17 @@ Algorithm::Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterat
 {
 	/*particles = std::vector<std::unique_ptr<Particle>>(particlesNumber, std::make_unique)
 	particles = new Particle*[particlesNumber];*/
-	for (size_t i = 0; i < particlesNumber; ++i)
-	{
-		//particles[i] = new Particle(particlesSize);
-		/*if (!bestKnownParticle)
-			std::cout << "BestKnownParticle is nullptr, something went wrong" << std::endl;*/
-		particles.push_back(std::make_unique<Particle>(Particle(particlesSize)));
-		if (i == 0 || (objectiveFunction(particles[i].get()->getCurrentState()) < objectiveFunction(bestKnownParticle.getCurrentState())))
-			bestKnownParticle = *(particles[i].get());
-	}
+	//particles.clear();
+	//for (size_t i = 0; i < particlesNumber; ++i)
+	//{
+	//	//particles[i] = new Particle(particlesSize);
+	//	/*if (!bestKnownParticle)
+	//		std::cout << "BestKnownParticle is nullptr, something went wrong" << std::endl;*/
+	//	particles.push_back(std::make_unique<Particle>(Particle(particlesSize)));
+	//	if (i == 0 || (objectiveFunction(particles[i].get()->getCurrentState()) < objectiveFunction(bestKnownParticle.getCurrentState())))
+	//		bestKnownParticle = *(particles[i].get());
+	//}
+	refreshParticles();
 }
 
 
@@ -45,22 +47,43 @@ Algorithm::~Algorithm()
 
 void Algorithm::performOptimization()
 {
+	float objFcn;
 	for (size_t it = 0; it < iterations; ++it)
 	{
 		std::cout << "iteration: " << (it + 1) << std::endl;
 		for (size_t i = 0; i < particlesNumber; ++i)
 		{
 			particles[i]->updateParticleState(alpha, beta, vMax, bestKnownParticle.getCurrentState());
-			if (objectiveFunction(particles[i].get()->getBestLocalState()) > objectiveFunction(particles[i].get()->getCurrentState()))
+			objFcn = objectiveFunction(particles[i].get()->getCurrentState());
+			if (objectiveFunction(particles[i].get()->getBestLocalState()) > objFcn)
 			{
 				particles[i].get()->makeCurrentStateBest();
-				if (objectiveFunction(bestKnownParticle.getCurrentState()) > objectiveFunction(particles[i].get()->getCurrentState()))
+				if (objectiveFunction(bestKnownParticle.getCurrentState()) > objFcn)
 					bestKnownParticle = *(particles[i].get());		// !!!!!!!!
+				else if (objectiveFunction(bestKnownParticle.getCurrentState()) == objFcn)
+				{
+					if (!bestParticlesHistory.size() || (bestParticlesHistory.size() && bestParticlesHistory.back() != bestKnownParticle))
+					{
+						bestParticlesHistory.push_back(bestKnownParticle);
+						std::cout << "WRITING BEST SOLUTION TO MEMORY" << std::endl;
+					}
+					refreshParticles();
+				}
 			}
 		}
 		bestKnownParticle.printCurrentState();
 		std::cout << "obj fcn: " << objectiveFunction(bestKnownParticle.getCurrentState()) << std::endl;
 	}
+
+	for (size_t i = 0; i < bestParticlesHistory.size(); ++i)
+	{
+		if (objectiveFunction(bestParticlesHistory[i].getCurrentState()) < objectiveFunction(bestKnownParticle.getCurrentState()))
+			bestKnownParticle = bestParticlesHistory[i];
+	}
+
+	std::cout << "***************SOLUTION***************" << std::endl;
+	bestKnownParticle.printCurrentState();
+	std::cout << "obj fcn: " << objectiveFunction(bestKnownParticle.getCurrentState()) << std::endl;
 
 	// xi is a vector of m features
 	// Vmax should be probably 6
@@ -146,6 +169,17 @@ void Algorithm::printSolution()
 Particle Algorithm::getSolution()
 {
 	return bestKnownParticle;
+}
+
+void Algorithm::refreshParticles()
+{
+	particles.clear();
+	for (size_t i = 0; i < particlesNumber; ++i)
+	{
+		particles.push_back(std::make_unique<Particle>(Particle(particlesSize)));
+		if (i == 0 || (objectiveFunction(particles[i].get()->getCurrentState()) < objectiveFunction(bestKnownParticle.getCurrentState())))
+			bestKnownParticle = *(particles[i].get());
+	}
 }
 
 

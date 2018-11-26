@@ -22,6 +22,8 @@ public:
 	void printCurrentState();
 	pbit getBestLocalBit(size_t i);
 	pbit operator[](size_t i);
+	friend bool operator==(const Particle& lp, const Particle & rp);
+	friend bool operator!=(const Particle& lp, const Particle & rp);
 
 	std::vector<pbit> getCurrentState();
 	std::vector<pbit> getBestLocalState();
