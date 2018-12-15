@@ -11,9 +11,11 @@ public:
 			size_t particlesSize, 
 			size_t iterations, 
 			std::unique_ptr<DataSet> & ds, 
+			size_t objFunctionIdentifier,
 			float vMax, 
 			float alpha, 
-			float beta);
+			float beta,
+			float fNumImportance);
 	~Algorithm();
 
 	void performOptimization();
@@ -27,10 +29,13 @@ private:
 	size_t particlesSize;
 	size_t iterations;
 
+	size_t objFcnIdentifier;
+
 	float alpha;
 	float beta;
 	float vMax;
-	
+	float fNumImportance;
+
 	std::vector<std::unique_ptr<Particle>> particles;
 	std::vector<Particle> bestParticlesHistory;
 	Particle bestKnownParticle;

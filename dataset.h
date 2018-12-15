@@ -14,6 +14,8 @@ struct DataSet
 	float * meanData;
 	float ** meanClassData;
 	float * meanDiffs;
+	float ** stdDeviationClassData;
+	float * stdDevDiffs;
 
 	DataSet(size_t featuresNumber, size_t datasetSize);
 	~DataSet();

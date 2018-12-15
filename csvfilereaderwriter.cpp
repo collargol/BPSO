@@ -87,7 +87,7 @@ DataSet * CSVFileReaderWriter::readCSV()
 		{
 			std::getline(in, row);
 			if (!csvFileHeader.compare("null"))
-				csvFileHeader = row.substr(row.find(" ") + 1);
+				csvFileHeader = (" " + row.substr(row.find(" ") + 1));
 			if (in.bad() || in.fail())
 				break;
 			auto fields = readCSVRow(row);

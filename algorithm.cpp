@@ -1,7 +1,7 @@
 #include "algorithm.h"
 #include <iostream>
 
-Algorithm::Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, std::unique_ptr<DataSet> & ds, float vMax, float alpha, float beta)
+Algorithm::Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterations, std::unique_ptr<DataSet> & ds, size_t objFunctionIdentifier, float vMax, float alpha, float beta, float fNumImportance)
 	: particlesNumber(particlesNumber)
 	, particlesSize(particlesSize)
 	, particles()
@@ -9,9 +9,11 @@ Algorithm::Algorithm(size_t particlesNumber, size_t particlesSize, size_t iterat
 	, bestKnownParticle(particlesSize)
 	, iterations(iterations)
 	, dataset(ds.get())
+	, objFcnIdentifier(objFcnIdentifier)
 	, vMax(vMax)
 	, alpha(alpha)
 	, beta(beta)
+	, fNumImportance(fNumImportance)
 {
 	/*particles = std::vector<std::unique_ptr<Particle>>(particlesNumber, std::make_unique)
 	particles = new Particle*[particlesNumber];*/
@@ -118,45 +120,43 @@ float Algorithm::objectiveFunction(std::vector<pbit> state)
 	// 2nd idea
 	// check which parameters differ genders the most
 
-
 	float functionValue = 0.0f;
 	size_t validFeatures = 0;
-	float sumValue = 0.0f;
-	size_t howManyFeatures = 0;
-	for (size_t i = 0; i < particlesSize; ++i)
-	{
-		if (state[i] == 1)
-		{
-			sumValue += dataset->meanDiffs[i];
-			howManyFeatures++;
-		}
 
-		//if ((!useBestLocal && (*particle)[i] == 1) || (useBestLocal && particle->getBestLocalBit(i) == 1))
-		//{
-		//	++validFeatures;
-		//	for (size_t j = i + 1; j < particlesSize; ++j)
-		//	{
-		//		if ((!useBestLocal && (*particle)[j] == 1) || (useBestLocal && particle->getBestLocalBit(j) == 1))
-		//		{
-		//			float covariance = 0.0f;
-		//			// this is VERY slow because dataset is big
-		//			// for (size_t k = 0; k < dataset->datasetSize; ++k)
-		//			// another approach - getting 100 random values within range
-		//			for (size_t k = 0; k < 50; ++k)
-		//			{
-		//				size_t r = rand() % dataset->datasetSize;
-		//				covariance += ((*dataset)[i][r] - dataset->meanData[i]) * ((*dataset)[j][r] - dataset->meanData[j]);
-		//			}
-		//			covariance /= (dataset->datasetSize - 1);
-		//			std::cout << "covariance: " << covariance << std::endl;
-		//			functionValue += covariance;
-		//		}
-		//	}
-		//}
+	if (objFcnIdentifier == 0)
+	{
+		float sumValue = 0.0f;
+		size_t howManyFeatures = 0;
+		for (size_t i = 0; i < particlesSize; ++i)
+		{
+			if (state[i] == 1)
+			{
+				sumValue += dataset->meanDiffs[i];
+				howManyFeatures++;
+			}
+		}
+		//--validFeatures;
+		//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
+		functionValue = -sumValue / howManyFeatures;
+		functionValue += (howManyFeatures * functionValue * fNumImportance);
 	}
-	//--validFeatures;
-	//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
-	functionValue = sumValue / howManyFeatures;
+	else if (objFcnIdentifier == 1)
+	{
+		float sumValue = 0.0f;
+		size_t howManyFeatures = 0;
+		for (size_t i = 0; i < particlesSize; ++i)
+		{
+			if (state[i] == 1)
+			{
+				sumValue += (dataset->meanDiffs[i] / dataset->stdDevDiffs[i]);
+				howManyFeatures++;
+			}
+		}
+		//--validFeatures;
+		//functionValue /= ((validFeatures + validFeatures * validFeatures) / 2);
+		functionValue = -sumValue / howManyFeatures;
+		functionValue += (howManyFeatures * functionValue * fNumImportance);
+	}
 	return functionValue;
 }
 
