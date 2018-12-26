@@ -40,7 +40,4 @@ private:
 	std::vector<Particle> bestParticlesHistory;
 	Particle bestKnownParticle;
 	DataSet * dataset;
-
-	//Particle ** particles;
-	//DataSet * dataset;
 };

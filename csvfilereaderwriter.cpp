@@ -67,7 +67,6 @@ std::vector<std::string> CSVFileReaderWriter::readCSVRow(const std::string &row)
 				break;
 		}
 	}
-	//fields.erase(fields.begin());
 
 	if (colsNumber < fields.size() - 1)
 		colsNumber = fields.size() - 1;	//to omit first column with classif data
@@ -113,7 +112,6 @@ DataSet * CSVFileReaderWriter::readCSV()
 		for (size_t r = 0; r < table.size(); ++r)
 		{
 			dataset->classifData[r] = std::stoi(table[r][0]);
-			//std::cout << "classif data : " << dataset->classifData[r] << std::endl;
 			if (dataset->classifData[r] == 0)
 				(dataset->datasetSizeClass[0])++;
 			else //if (dataset->classifData[r] == 1)
@@ -121,8 +119,6 @@ DataSet * CSVFileReaderWriter::readCSV()
 
 			table[r].erase(table[r].begin());
 		}
-		//std::cout << "c0 : " << dataset->datasetSizeClass0 << std::endl;
-		//std::cout << "c1 : " << dataset->datasetSizeClass1 << std::endl;
 
 		for (size_t r = 0; r < table.size(); ++r)
 			for (size_t c = 0; c < table[r].size(); ++c)
@@ -144,17 +140,10 @@ void CSVFileReaderWriter::writeSolutionCSV(Particle solution)
 		std::string solutionRow;
 		for (size_t i = 0; i < solution.getSize(); ++i)
 		{	
-			//char bit = static_cast<char>((*solution)[i]);
-			//char * c = reinterpret_cast<char *>((*solution)[i]);
 			if (i > 0) 
 				solutionRow += ", ";
-				//solutionRow.append(", ");
-			//solutionRow.append(std::string(&bit));
-			//std::cout << "bit value: " << char(int((*solution)[i])) << std::endl;
-			//solutionRow += static_cast<char>((*solution)[i]);
 			solutionRow += (solution[i] == 1) ? "1" : "0";
 		}
-		std::cout << "solution to write: " << solutionRow << std::endl;
 		out << solutionRow;
 		fb.close();
 	}

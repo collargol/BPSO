@@ -108,17 +108,6 @@ Particle & Particle::operator=(const Particle & particle)
 {
 	if (this != &particle && size == particle.size)
 	{
-		/*if (currentState)
-			delete[] currentState;
-		if (bestLocalState)
-			delete[] bestLocalState;
-		if (velocities)
-			delete[] velocities;
-
-		currentState = new pbit[size];
-		bestLocalState = new pbit[size];
-		velocities = new float[size];*/
-
 		currentState = particle.currentState;
 		bestLocalState = particle.bestLocalState;
 		velocities = particle.velocities;
@@ -148,7 +137,7 @@ void Particle::updateParticleState(float alpha, float beta, float maxVelocity, s
 		c2 = beta  * (static_cast<float>(rand()) / RAND_MAX);
 		velocities[i] += c1 * (bestLocalState[i] - currentState[i]) + c2 * (bestGlobalState[i] - currentState[i]);
 		velocities[i] = abs(velocities[i]) > maxVelocity ? (maxVelocity * velocities[i] / abs(velocities[i])) : velocities[i];
-		// update particle component - should be HERE or below this scope??
+		// update particle component
 		velocitySigmoid = 1 / (1 + exp(-velocities[i]));
 		currentState[i] = ((static_cast<float>(rand()) / RAND_MAX) < velocitySigmoid) ? 1 : 0;
 	}

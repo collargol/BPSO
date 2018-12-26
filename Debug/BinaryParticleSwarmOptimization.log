@@ -1,6 +1,2 @@
 ﻿  BinaryParticleSwarmOptimization.cpp
-  algorithm.cpp
-  csvfilereaderwriter.cpp
-  dataset.cpp
-  Generating Code...
   BinaryParticleSwarmOptimization.vcxproj -> C:\Users\Michał\Desktop\IX semestr\IO\BinaryParticleSwarmOptimization\Debug\BinaryParticleSwarmOptimization.exe
